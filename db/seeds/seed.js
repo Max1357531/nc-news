@@ -1,6 +1,7 @@
 const db = require("../connection")
 const format = require('pg-format')
-const {convertTimestampToDate,createLookUp} = require('./utils')
+const {convertTimestampToDate,createLookUp} = require('./utils');
+const { runCLI } = require("jest");
 const seed = ({ topicData, userData, articleData, commentData }) => {
   let lookUpArticle;
   return dropAllTables()
@@ -21,6 +22,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   }).then((lookUpArticle)=>{
   lookUpArticle = lookUpArticle
   return insertCommentsData(commentData, lookUpArticle)
+  }).then(()=>{
+  return runTestQueries()
   })
   
 
@@ -49,7 +52,7 @@ function createUsers(){
 }
 
 function createArticles(){
-  return db.query('CREATE TABLE articles( article_id SERIAL PRIMARY KEY, title VARCHAR(80), topic VARCHAR(50) REFERENCES topics(slug), author VARCHAR(50) REFERENCES users(username),body TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, votes INT DEFAULT 0, article_img_url VARCHAR(1000))')
+  return db.query('CREATE TABLE articles( article_id SERIAL PRIMARY KEY, title VARCHAR(200), topic VARCHAR(50) REFERENCES topics(slug), author VARCHAR(50) REFERENCES users(username),body TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, votes INT DEFAULT 0, article_img_url VARCHAR(1000))')
 }
 
 function createComments(){
@@ -87,5 +90,39 @@ function insertCommentsData(commentData,articleLookUp){
   ))
 }
 
+function titlePrint(string){
+  if (string.length > 84){ string = "Title too long"}
+  console.log("-".repeat(100))
+  console.log("-".repeat(10) + "   " + string + "   " + "-".repeat(84-string.length))
+  console.log("-".repeat(100))
+}
+
+function runTestQueries(){
+  return db.query('SELECT * FROM users')
+  .then((result)=>{
+    titlePrint('Gets all users')
+    console.log(result.rows)
+    return db.query("SELECT * FROM articles WHERE topic = 'coding'")
+  }).then((result)=>{
+    titlePrint('Gets all articles with the topic coding')
+    console.log(result.rows)
+    return db.query("SELECT * FROM comments WHERE votes < 0")
+  }).then((result)=>{
+    titlePrint('Gets all comments with votes less than 0')
+    console.log(result.rows)
+    return db.query("SELECT * FROM topics")
+  }).then((result)=>{
+    titlePrint('Gets all topics')
+    console.log(result.rows)
+    return db.query("SELECT * FROM comments WHERE comments.author = 'grumpy19'")
+  }).then((result)=>{
+    titlePrint('Gets all comments from grumpy19')
+    console.log(result.rows)
+    return db.query("SELECT * FROM comments WHERE votes > 10")
+  }).then((result)=>{
+    titlePrint('Gets all comments with more than 10 votes')
+    console.log(result.rows)
+  })
+}
 
 module.exports = seed;
