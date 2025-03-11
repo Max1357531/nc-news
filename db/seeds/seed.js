@@ -22,9 +22,10 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   }).then((lookUpArticle)=>{
   lookUpArticle = lookUpArticle
   return insertCommentsData(commentData, lookUpArticle)
-  }).then(()=>{
-  return runTestQueries()
   })
+  //.then(()=>{
+  // return runTestQueries()
+  // })
   
 
 };
