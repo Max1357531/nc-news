@@ -11,6 +11,18 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("getQueryPerm", () => {
+    test("supplies a query permission with basic attributes", () => {
+        const tableName = ""
+        const allowedQueries = {}
+        const defaultQuery = {}
+        getQueryPerm(tableName,allowedQueries,defaultQuery)
+        .then((perm)=>{
+            expect(perm.tableName).toEqual("")
+            expect(perm.allowedQueries).toEqual({})
+            expect(perm.defaultQuery).toEqual({})
+
+        })
+    })
     test("supplies a query permission with given attributes", () => {
         const tableName = "topics"
         const allowedQueries = {'sort_by': ['description', 'slug'],'order':['desc','asc'],'description':['*']}
@@ -24,5 +36,6 @@ describe("getQueryPerm", () => {
         })
     })
     test("gets default queryPermNames when supplied with *", () => {
+
     })
 })
