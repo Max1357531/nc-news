@@ -3,7 +3,9 @@ const app = express()
 const db = require('./db/connection')
 const format = require('pg-format');
 const endpoints = require('./endpoints.json')
+
 const{errors:{customErrorResponse,error500,error404},topics} = require ('./controllers')
+
 
 app.use(express.json())
 
