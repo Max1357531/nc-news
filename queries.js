@@ -8,6 +8,9 @@ class QueryPerm{
         this.defaultQuery = defaultQuery;
         this.allowedQueries = allowedQueries;
     }
+
+    
+
     greenListQuery(query){
         for (let queryKey in query){
             if (!(queryKey in this.allowedQueries)){

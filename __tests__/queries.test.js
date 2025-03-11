@@ -15,7 +15,7 @@ describe("getQueryPerm", () => {
         const tableName = ""
         const allowedQueries = {}
         const defaultQuery = {}
-        getQueryPerm(tableName,allowedQueries,defaultQuery)
+        return getQueryPerm(tableName,allowedQueries,defaultQuery)
         .then((perm)=>{
             expect(perm.tableName).toEqual("")
             expect(perm.allowedQueries).toEqual({})
@@ -27,7 +27,7 @@ describe("getQueryPerm", () => {
         const tableName = "topics"
         const allowedQueries = {'sort_by': ['description', 'slug'],'order':['desc','asc'],'description':['*']}
         const defaultQuery = {'sort_by': 'slug', 'order': 'asc'}
-        getQueryPerm(tableName,allowedQueries,defaultQuery)
+        return getQueryPerm(tableName,allowedQueries,defaultQuery)
         .then((perm)=>{
             expect(perm.tableName).toEqual("topics")
             expect(perm.allowedQueries).toEqual({'sort_by': ['description', 'slug'],'order':['desc','asc'],'description':['*']})
@@ -35,7 +35,22 @@ describe("getQueryPerm", () => {
 
         })
     })
-    test("gets default queryPermNames when supplied with *", () => {
-
+    test("sets all allowed queries to be all column names when supplied with *", () => {
+        const tableName = "topics"
+        const allowedQueries = "*"
+        const defaultQuery = {'sort_by': 'slug', 'order': 'asc'}
+        return getQueryPerm(tableName,allowedQueries,defaultQuery)
+        .then((perm)=>{
+            console.log(perm)
+            expect(perm.tableName).toEqual("topics")
+            expect(perm.allowedQueries).toEqual({
+                order: [ 'asc', 'desc' ],
+                sort_by: [ 'slug', 'description', 'img_url' ],
+                slug: [ '*' ],
+                description: [ '*' ],
+                img_url: [ '*' ]
+              })
+            expect(perm.defaultQuery).toEqual({'sort_by': 'slug', 'order': 'asc'})
+        })
     })
 })
