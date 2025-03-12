@@ -1,4 +1,4 @@
-const exceptionQueries = ['sort_by','order']
+const exceptionQueries = ['sort_by','order','returning']
 const db = require('./db/connection')
 const format = require('pg-format')
 
@@ -9,7 +9,7 @@ class QueryPerm{
         this.allowedQueries = allowedQueries;
     }
 
-    
+
 
     greenListQuery(query){
         for (let queryKey in query){
@@ -27,30 +27,51 @@ class QueryPerm{
     }
 
     completeQueryString(query){
-        let string = format("SELECT * FROM %I",this.tableName)
         query = Object.assign(this.defaultQuery,query)
-        let whereFlag = false
+        console.log(query)
+        let string = format("SELECT %I FROM %I",this.defaultQuery.returning,this.tableName)
         Object.keys(query).forEach((key)=>{
             if (!exceptionQueries.includes(key)){
                 string += (whereFlag ? " and " : " where " ) + format("%I = %I",key,query[key])
                 whereFlag = true
             }
         })
-        string += (query.order ? format(" ORDER BY %I ", query.sort_by) + (query.order || "") : "")
+        string += (query.sort_by ? format(" ORDER BY %I ", query.sort_by) + (query.order || "") : "")
         return(string)
     }
 }
 
 function getQueryPerm(tableName,allowedQueries={},defaultQuery = {}){
     greenList = {order: ['asc','desc'], sort_by: []}
-    if (allowedQueries === '*'){
+    const buildDefaultReturn = !defaultQuery.returning
+    if (allowedQueries === '*' || buildDefaultReturn){
         return db.query('SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=$1',[tableName])
         .then(({rows})=>{
-            for (let rowName of rows.map((col) => col.column_name)){
-                greenList.sort_by.push(rowName)
-                greenList[rowName] = ["*"]
+            for (let colName of rows.map((col) => col.column_name)){
+                if (buildDefaultReturn){
+                    if (!defaultQuery.returning){
+                        defaultQuery.returning = [colName]
+                    }
+                    else{
+                        defaultQuery.returning.push(colName)
+                    }
+                }
+                
+                if (allowedQueries === '*'){
+                    greenList.sort_by.push(colName)
+                    greenList[colName] = ["*"]
+                    if (defaultQuery.returning.includes(colName)){
+                        if (!greenList.returning){
+                            greenList.returning = [colName]
+                        }
+                        else{
+                            greenList.returning.push(colName)
+                        }
+                    }
+                }
             }
-            return Promise.resolve(new QueryPerm(tableName,greenList,defaultQuery))
+            if (allowedQueries === '*') return Promise.resolve(new QueryPerm(tableName,greenList,defaultQuery))
+            return Promise.resolve(new QueryPerm(tableName,allowedQueries,defaultQuery))
         })
     }
     else{
