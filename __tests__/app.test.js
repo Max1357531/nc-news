@@ -22,6 +22,24 @@ describe("GET /api", () => {
         expect(endpoints).toEqual(endpointsJson);
       });
   });
+  describe("GET /api/topics", () => {
+    test("200: Responds with a list of all topics with no query", () => {
+      return request(app)
+      .get("/api/topics")
+      .expect(200)
+      .then(({ body}) => {
+        expect(body).toEqual([{"description": "The man, the Mitch, the legend", "slug": "mitch"}, {"description": "Not dogs", "slug": "cats"}, {"description": "what books are made of", "slug": "paper"}]);
+      });
+    })
+    test("400: Responds with a 400 code and error message with invalid query", () => {
+      return request(app)
+      .get("/api/topics?sort_by=age")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toEqual("Invalid search topic");
+      });
+    })
+  })
 });
 describe("app.js", () => {
   test("404: Responds with a 404 error when GET called on undefined endpoint", () => {
