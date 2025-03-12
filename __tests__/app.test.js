@@ -292,6 +292,27 @@ describe("/api", () => {
       });
     });
   });
+  describe("/api/users",()=>{
+    describe("GET",()=>{
+      test("200: Responds with a list of all users with no query", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.length).toBe(4)
+            expect(body[0]).toEqual({"avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg", "name": "jonny", "username": "butter_bridge"});
+          });
+      });
+      test("400: Responds with a 400 code and error message with a query", () => {
+        return request(app)
+          .get("/api/users?sort_by=username")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toEqual("Invalid search topic");
+          });
+      });
+    })
+  })
 });
 describe("app.js", () => {
   test("404: Responds with a 404 error when GET called on undefined endpoint", () => {

@@ -16,4 +16,24 @@ function fetchUserByID(username) {
       }
     });
 }
+
+exports.getAllUsers = (request, response, next) => {
+  return getQueryPerm("users", {}, {
+    returning: [
+      "username",
+      "name",
+      "avatar_url",
+    ],
+  })
+    .then((perm) => {
+      return execQuery(request.query, perm);
+    })
+    .then(({ rows }) => {
+      response.status(200).send(rows);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 exports.fetchUserByID = fetchUserByID

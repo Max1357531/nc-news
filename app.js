@@ -8,7 +8,8 @@ const {
   errors: { customErrorResponse, error500, error404, errorSQL },
   articles: { getArticleById, getAllArticles , postComment,updateVotes},
   topics: { getTopics} ,
-  comments: {deleteComment, getAllComments}
+  comments: {deleteComment, getAllComments},
+  users: {getAllUsers}
 } = require("./controllers");
 
 
@@ -23,6 +24,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:id", getArticleById);
 app.get("/api/comments", getAllComments);
+app.get("/api/users", getAllUsers);
 app.post("/api/articles/:id/comments", postComment);
 app.patch("/api/articles/:id", updateVotes);
 app.delete("/api/comments/:id", deleteComment);
