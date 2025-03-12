@@ -1,5 +1,9 @@
 const { getQueryPerm } = require("../queries");
-const { selectArticleByID } = require("../models/articles");
+const {
+  execQuery,
+  articles: { postCommentToDB },
+} = require("../models");
+const { fetchUserByID } = require("./users");
 
 function fetchArticleByID(id) {
   return getQueryPerm("articles", "*", {
@@ -15,7 +19,7 @@ function fetchArticleByID(id) {
     ],
   })
     .then((perm) => {
-      return selectArticleByID({ article_id: id }, perm);
+      return execQuery({ article_id: id }, perm);
     })
     .then(({ rows }) => {
       if (rows < 1) {
@@ -41,7 +45,7 @@ exports.getAllArticles = (request, response, next) => {
     ],
   })
     .then((perm) => {
-      return selectArticleByID(request.query, perm);
+      return execQuery(request.query, perm);
     })
     .then(({ rows }) => {
       response.status(200).send(rows);
@@ -54,7 +58,17 @@ exports.getAllArticles = (request, response, next) => {
 exports.postComment = (request, response, next) => {
   return fetchArticleByID(request.params.id)
     .then(() => {
-      console.log(request);
+      return fetchUserByID(request.body.username);
+    })
+    .then(() => {
+      let comment = Object.assign(
+        { article_id: request.params.id },
+        request.body
+      );
+      return postCommentToDB(comment);
+    })
+    .then(({ rows }) => {
+      response.status(200).send(rows[0]);
     })
     .catch((err) => {
       next(err);

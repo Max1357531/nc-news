@@ -6,10 +6,10 @@ const endpoints = require("./endpoints.json");
 
 const {
   errors: { customErrorResponse, error500, error404, errorSQL },
-  topics,
+  articles: { getArticleById, getAllArticles , postComment},
+  topics: { getTopics} 
 } = require("./controllers");
-const { getTopics } = require("./controllers/topics");
-const { getArticleById, getAllArticles } = require("./controllers/articles");
+
 
 app.use(express.json());
 
@@ -20,7 +20,7 @@ app.get("/api", (request, response) => {
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:id", getArticleById);
-app.post("/api/articles/:id/comments", getArticleById);
+app.post("/api/articles/:id/comments", postComment);
 
 app.get("*", error404);
 app.use(errorSQL);

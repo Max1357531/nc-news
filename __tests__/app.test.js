@@ -141,7 +141,52 @@ describe("GET /api", () => {
             expect(msg).toEqual("Not Found");
           });
       });
-      describe("GET /api/articles/:id/comments", () => {
+      describe("POST /api/articles/:id/comments", () => {
+        test("200: Posts a comment to a valid article id", ()=>{
+          body = {username:"butter_bridge",body: "good content"}
+          return request(app)
+            .post("/api/articles/1/comments")
+            .send(body)
+            .expect(200)
+            .then(({ body }) =>{  
+              expect(body.comment_id).toEqual(19)
+              expect(body.article_id).toEqual(1)
+              expect(body.body).toEqual('good content')
+              expect(body.votes).toEqual(0)
+              expect(body.author).toEqual('butter_bridge')
+            })
+        })
+      })
+        test("404: Responds with status 400 and msg not found when article doesn't exist", ()=>{
+          body = {username:"butter_bridge",body: "good content"}
+          return request(app)
+            .post("/api/articles/100/comments")
+            .send(body)
+            .expect(404)
+            .then(({body :{msg}}) =>{  
+              expect(msg).toEqual("Not Found")
+            })
+      
+      })
+        test("404: Responds with status 400 and msg not found when user doesn't exist", ()=>{
+          body = {username:"butter_bridge2",body: "good content"}
+          return request(app)
+            .post("/api/articles/1/comments")
+            .send(body)
+            .expect(404)
+            .then(({body :{msg}}) =>{  
+              expect(msg).toEqual("Not Found")
+            })
+      })
+        test("400: Responds with status 400 and not found when article_id is wrong type", ()=>{
+          body = {username:"butter_bridge2",body: "good content"}
+          return request(app)
+            .post("/api/articles/a/comments")
+            .send(body)
+            .expect(400)
+            .then(({body :{msg}}) =>{  
+              expect(msg).toEqual("Invalid data type")
+            })
       })
     });
   });
