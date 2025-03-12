@@ -19,5 +19,9 @@ exports.errorSQL = (err,request,response,next) =>{
     }
 }
 exports.error500 = (err, request,response,next) => {
+    console.log(err)
+    console.log("--------------------")
+    console.log("Internal Server Error")
+    console.log("--------------------")
     response.status(500).send()
 }
