@@ -4,8 +4,9 @@ const db = require('./db/connection')
 const format = require('pg-format');
 const endpoints = require('./endpoints.json')
 
-const{errors:{customErrorResponse,error500,error404},topics} = require ('./controllers');
+const{errors:{customErrorResponse,error500,error404,errorSQL},topics} = require ('./controllers');
 const { getTopics } = require('./controllers/topics');
+const { getArticleById } = require('./controllers/articles');
 
 
 app.use(express.json())
@@ -15,8 +16,10 @@ app.get('/api',(request,response)=>{
 })
 
 app.get('/api/topics',getTopics)
+app.get('/api/articles/:id',getArticleById)
 
 app.get('*',error404)
+app.use(errorSQL)
 app.use(customErrorResponse)
 app.use(error500)
 

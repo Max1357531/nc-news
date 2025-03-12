@@ -40,6 +40,40 @@ describe("GET /api", () => {
       });
     })
   })
+  describe("GET /api/articles/:id", () => {
+    test("200: Responds with an article if it exists", () => {
+      return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual({"article_id": 1, 
+         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+         "author": "butter_bridge",
+         "body": "I find this existence challenging",
+         "created_at": "2020-07-09T20:11:00.000Z",
+         "title": "Living in the shadow of a great man",
+         "topic": "mitch",
+         "votes": 100,
+        });
+      });
+    })
+    test("400: Responds with a 400 code and error message with invalid query id", () => {
+      return request(app)
+      .get("/api/articles/as")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toEqual("Invalid data type");
+      });
+    })
+    test("404: Responds with a 404 code and error message with non existent article", () => {
+      return request(app)
+      .get("/api/articles/100")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toEqual("Not Found");
+      });
+    })
+  })
 });
 describe("app.js", () => {
   test("404: Responds with a 404 error when GET called on undefined endpoint", () => {

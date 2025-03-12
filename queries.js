@@ -28,11 +28,11 @@ class QueryPerm{
 
     completeQueryString(query){
         query = Object.assign(this.defaultQuery,query)
-        console.log(query)
+        let whereFlag = false
         let string = format("SELECT %I FROM %I",this.defaultQuery.returning,this.tableName)
         Object.keys(query).forEach((key)=>{
             if (!exceptionQueries.includes(key)){
-                string += (whereFlag ? " and " : " where " ) + format("%I = %I",key,query[key])
+                string += (whereFlag ? " and " : " where " ) + format("%I = %L",key,query[key])
                 whereFlag = true
             }
         })
