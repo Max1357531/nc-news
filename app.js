@@ -6,7 +6,7 @@ const endpoints = require("./endpoints.json");
 
 const {
   errors: { customErrorResponse, error500, error404, errorSQL },
-  articles: { getArticleById, getAllArticles , postComment},
+  articles: { getArticleById, getAllArticles , postComment,updateVotes},
   topics: { getTopics} 
 } = require("./controllers");
 
@@ -21,7 +21,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:id", getArticleById);
 app.post("/api/articles/:id/comments", postComment);
-
+app.patch("/api/articles/:id", updateVotes);
 app.get("*", error404);
 app.use(errorSQL);
 app.use(customErrorResponse);

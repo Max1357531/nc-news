@@ -1,7 +1,7 @@
 const { getQueryPerm } = require("../queries");
 const {
   execQuery,
-  articles: { postCommentToDB },
+  articles: { postCommentToDB,updateVotesOfArticle},
 } = require("../models");
 const { fetchUserByID } = require("./users");
 
@@ -29,6 +29,20 @@ function fetchArticleByID(id) {
       }
     });
 }
+
+exports.updateVotes = (request, response, next) => {
+    return fetchArticleByID(request.params.id)
+      .then((article) => {
+        return updateVotesOfArticle(article,request.body.inc_votes)
+      })
+      .then(({rows})=>{
+        response.status(200).send(rows[0])
+      })
+      .catch((err) => {
+        next(err);
+      });
+  };
+  
 
 exports.getAllArticles = (request, response, next) => {
   return getQueryPerm("articles", "*", {
