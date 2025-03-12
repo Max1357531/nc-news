@@ -1,14 +1,11 @@
 const endpointsJson = require("../endpoints.json");
 
-
 const request = require("supertest");
 const app = require("../app.js");
 
-const db = require("../db/connection")
-const seed = require("../db/seeds/seed")
-const data = require("../db/data/test-data")
-
-
+const db = require("../db/connection");
+const seed = require("../db/seeds/seed");
+const data = require("../db/data/test-data");
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -25,85 +22,130 @@ describe("GET /api", () => {
   describe("GET /api/topics", () => {
     test("200: Responds with a list of all topics with no query", () => {
       return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body}) => {
-        expect(body).toEqual([{"description": "The man, the Mitch, the legend", "slug": "mitch"}, {"description": "Not dogs", "slug": "cats"}, {"description": "what books are made of", "slug": "paper"}]);
-      });
-    })
+        .get("/api/topics")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual([
+            { description: "The man, the Mitch, the legend", slug: "mitch" },
+            { description: "Not dogs", slug: "cats" },
+            { description: "what books are made of", slug: "paper" },
+          ]);
+        });
+    });
     test("400: Responds with a 400 code and error message with invalid query", () => {
       return request(app)
-      .get("/api/topics?sort_by=age")
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toEqual("Invalid search topic");
-      });
-    })
-  })
+        .get("/api/topics?sort_by=age")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toEqual("Invalid search topic");
+        });
+    });
+  });
   describe("GET /api/articles", () => {
-    test("200: Responds with all topics sorted by date created",()=>{
+    test("200: Responds with all topics sorted by date created", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
           expect(body.length).toEqual(13);
-          expect(body[0]).toEqual({"article_id": 3, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-11-03T09:12:00.000Z", "title": "Eight pug gifs that remind me of mitch", "topic": "mitch", "votes": 0});
-          expect(body[1]).toEqual({"article_id": 6, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-10-18T01:00:00.000Z", "title": "A", "topic": "mitch", "votes": 0});
+          expect(body[0]).toEqual({
+            article_id: 3,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            author: "icellusedkars",
+            created_at: "2020-11-03T09:12:00.000Z",
+            title: "Eight pug gifs that remind me of mitch",
+            topic: "mitch",
+            votes: 0,
+          });
+          expect(body[1]).toEqual({
+            article_id: 6,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            author: "icellusedkars",
+            created_at: "2020-10-18T01:00:00.000Z",
+            title: "A",
+            topic: "mitch",
+            votes: 0,
+          });
         });
-    })
-    test("200: Responds with all topics sorted by date created with oldest first if prompted",()=>{
+    });
+    test("200: Responds with all topics sorted by date created with oldest first if prompted", () => {
       return request(app)
         .get("/api/articles?order=asc")
         .expect(200)
         .then(({ body }) => {
           expect(body.length).toEqual(13);
-          expect(body[0]).toEqual({"article_id": 7, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-01-07T14:08:00.000Z", "title": "Z", "topic": "mitch", "votes": 0})
-          expect(body[1]).toEqual({"article_id": 11, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-01-15T22:21:00.000Z", "title": "Am I a cat?", "topic": "mitch", "votes": 0})
+          expect(body[0]).toEqual({
+            article_id: 7,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            author: "icellusedkars",
+            created_at: "2020-01-07T14:08:00.000Z",
+            title: "Z",
+            topic: "mitch",
+            votes: 0,
+          });
+          expect(body[1]).toEqual({
+            article_id: 11,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            author: "icellusedkars",
+            created_at: "2020-01-15T22:21:00.000Z",
+            title: "Am I a cat?",
+            topic: "mitch",
+            votes: 0,
+          });
         });
-    })
-    test("400: Responds with an error if prompted an invalid order query",()=>{
+    });
+    test("400: Responds with an error if prompted an invalid order query", () => {
       return request(app)
         .get("/api/articles?order=ascc")
         .expect(400)
         .then(({ body: { msg } }) => {
-          expect(msg).toEqual("Invalid search term"); });
-    })
+          expect(msg).toEqual("Invalid search term");
+        });
+    });
     describe("GET /api/articles/:id", () => {
       test("200: Responds with an article if it exists", () => {
         return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body).toEqual({"article_id": 1, 
-            "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            "author": "butter_bridge",
-            "body": "I find this existence challenging",
-            "created_at": "2020-07-09T20:11:00.000Z",
-            "title": "Living in the shadow of a great man",
-            "topic": "mitch",
-            "votes": 100,
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual({
+              article_id: 1,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              author: "butter_bridge",
+              body: "I find this existence challenging",
+              created_at: "2020-07-09T20:11:00.000Z",
+              title: "Living in the shadow of a great man",
+              topic: "mitch",
+              votes: 100,
+            });
           });
-        });
-      })
+      });
       test("400: Responds with a 400 code and error message with invalid query id", () => {
         return request(app)
-        .get("/api/articles/as")
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toEqual("Invalid data type");
-        });
-      })
+          .get("/api/articles/as")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toEqual("Invalid data type");
+          });
+      });
       test("404: Responds with a 404 code and error message with non existent article", () => {
         return request(app)
-        .get("/api/articles/100")
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toEqual("Not Found");
-        });
+          .get("/api/articles/100")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toEqual("Not Found");
+          });
+      });
+      describe("GET /api/articles/:id/comments", () => {
       })
-    })
     });
-})
+  });
+});
 describe("app.js", () => {
   test("404: Responds with a 404 error when GET called on undefined endpoint", () => {
     return request(app)
@@ -113,4 +155,4 @@ describe("app.js", () => {
         expect(msg).toEqual("Not Found");
       });
   });
-})
+});
