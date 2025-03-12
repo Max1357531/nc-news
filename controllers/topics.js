@@ -1,10 +1,10 @@
 const { getQueryPerm } = require("../queries")
-const { selectAllTopics } = require("../models/topics")
+const { execQuery } = require("../models")
 
 exports.getTopics = (request,response,next) =>{
     return getQueryPerm('topics',{},{"returning":["slug", "description"]})
     .then((perm)=>{
-        return selectAllTopics(request.query,perm)
+        return execQuery(request.query,perm)
     })
     .then(({rows}) =>{
         response.status(200).send(rows)
