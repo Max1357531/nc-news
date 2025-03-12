@@ -150,7 +150,7 @@ describe("/api", () => {
         });
       });
       describe("PATCH", () => {
-        test("Updates votes on an article", () => {
+        test("200: Updates votes on an article", () => {
           const body = { inc_votes: 10 };
           return request(app)
             .patch("/api/articles/1")
@@ -160,7 +160,7 @@ describe("/api", () => {
               expect(body.votes).toBe(110);
             });
         });
-        test("Responds with 404 error if article not found", () => {
+        test("404: Responds with 404 error if article not found", () => {
           const body = { inc_votes: 10 };
           return request(app)
             .patch("/api/articles/100")
@@ -170,7 +170,7 @@ describe("/api", () => {
               expect(body.msg).toBe("Not Found");
             });
         });
-        test("Responds bad request if inc_votes is not a number", () => {
+        test("404: Responds bad request if inc_votes is not a number", () => {
           const body = { inc_votes: "ten" };
           return request(app)
             .patch("/api/articles/1")
@@ -180,7 +180,7 @@ describe("/api", () => {
               expect(body.msg).toBe("Bad Request");
             });
         });
-        test("Responds bad request if inc_votes does not exist in body", () => {
+        test("400: Responds bad request if inc_votes does not exist in body", () => {
           const body = { votes: "ten" };
           return request(app)
             .patch("/api/articles/1")
@@ -238,6 +238,57 @@ describe("/api", () => {
               });
           });
         });
+      });
+    });
+  });
+  describe("/api/comments", () => {
+    describe("/api/comments/:id", () => {
+      describe("DELETE", () => {
+        test("204: Responds with correct status code", () => {
+          return request(app)
+            .delete("/api/comments/1")
+            .expect(204)
+            .then(({ body}) => {
+              expect(body).toEqual({});
+            });
+        });
+        test("204: Comment is deleted from database", () => {
+          let secondComment;
+          return request(app)
+          .get("/api/comments")
+          .expect(200)
+          .then(({body}) => {
+            secondComment = body[1]
+            return request(app)
+            .delete("/api/comments/15")
+            .expect(204)
+          })          
+            .then(() => {
+              return request(app)
+              .get("/api/comments")
+              .expect(200)
+          })
+          .then(({body})=>{
+            expect(body[0]).toEqual(secondComment)
+          })
+        });
+        test("404: Responds with correct status code and message when comment not found", () => {
+          return request(app)
+            .delete("/api/comments/150")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toEqual("Not Found");
+            });
+        })
+        test("400: Responds with correct status code and message when comment id is wrong type", () => {
+          return request(app)
+            .delete("/api/comments/as")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).toEqual("Invalid data type");
+            });
+        })
+        
       });
     });
   });
