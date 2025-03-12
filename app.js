@@ -6,7 +6,7 @@ const endpoints = require('./endpoints.json')
 
 const{errors:{customErrorResponse,error500,error404,errorSQL},topics} = require ('./controllers');
 const { getTopics } = require('./controllers/topics');
-const { getArticleById } = require('./controllers/articles');
+const { getArticleById, getAllArticles } = require('./controllers/articles');
 
 
 app.use(express.json())
@@ -16,6 +16,7 @@ app.get('/api',(request,response)=>{
 })
 
 app.get('/api/topics',getTopics)
+app.get('/api/articles',getAllArticles)
 app.get('/api/articles/:id',getArticleById)
 
 app.get('*',error404)
