@@ -1,8 +1,26 @@
 const { getQueryPerm } = require("../queries")
 const { selectArticleByID } = require("../models/articles")
 
+
+
+exports.getAllArticles = (request,response,next) =>{
+    return getQueryPerm('articles',"*",{"sort_by": "created_at","order":"desc", "returning":["author","title","article_id","topic","created_at","votes","article_img_url"]})
+    .then((perm)=>{
+        return selectArticleByID(request.query,perm)
+    })
+    .then(({rows}) =>{
+        response.status(200).send(rows)
+
+    })
+    .catch((err)=>{
+        next(err)
+    })
+    
+}
+
+
 exports.getArticleById = (request,response,next) =>{
-    return getQueryPerm('articles',"*",{returning:["author","title","article_id","body","topic","created_at","votes","article_img_url"]})
+    return getQueryPerm('articles',"*",{"returning":["author","title","article_id","body","topic","created_at","votes","article_img_url"]})
     .then((perm)=>{
         return selectArticleByID({'article_id':request.params.id},perm)
     })
