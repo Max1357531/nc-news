@@ -103,6 +103,16 @@ describe("/api", () => {
             });
           });
       });
+      test("200: Responds with all topics sorted by votes created with most votes first", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.length).toEqual(13);
+            expect(body[0]).toEqual({"article_id": 1, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "butter_bridge", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100});
+            expect(body[1]).toEqual({"article_id": 2, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-10-16T05:03:00.000Z", "title": "Sony Vaio; or, The Laptop", "topic": "mitch", "votes": 0});
+          });
+      });
       test("400: Responds with an error if prompted an invalid order query", () => {
         return request(app)
           .get("/api/articles?order=ascc")
