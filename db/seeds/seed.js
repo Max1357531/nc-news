@@ -22,6 +22,8 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   }).then((lookUpArticle)=>{
   lookUpArticle = lookUpArticle
   return insertCommentsData(commentData, lookUpArticle)
+  }).then(()=>{
+  return createForeignKeyView()
   })
   //.then(()=>{
   // return runTestQueries()
@@ -40,6 +42,9 @@ function dropAllTables(){
   })
   .then(()=>{
     return db.query('DROP TABLE IF EXISTS topics')
+  })
+  .then(()=>{
+    return db.query('DROP VIEW IF EXISTS foreign_keys_view')
   })
 }
 
@@ -89,6 +94,21 @@ function insertCommentsData(commentData,articleLookUp){
     'INSERT INTO comments (article_id, body, votes,author, created_at) VALUES %L RETURNING *',
     commentData.map((row) =>{return [articleLookUp[row.article_title],row.body,row.votes,row.author,convertTimestampToDate({created_at:row.created_at}).created_at]})
   ))
+}
+
+function createForeignKeyView(){
+  return db.query(`CREATE VIEW foreign_keys_view AS
+    SELECT
+    tc.table_name, kcu.column_name,
+    ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name
+FROM
+    information_schema.table_constraints AS tc
+    JOIN information_schema.key_column_usage 
+        AS kcu ON tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage 
+        AS ccu ON ccu.constraint_name = tc.constraint_name
+WHERE constraint_type = 'FOREIGN KEY'`)
 }
 
 function titlePrint(string){
