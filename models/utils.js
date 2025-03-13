@@ -1,8 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-exports.articles = require("./articles")
-exports.comments = require("./comments")
 exports.execQuery = (query, queryPerm) => {
     return queryPerm.greenListQuery(query).then(() => {
       return db.query(queryPerm.completeQueryString(query));

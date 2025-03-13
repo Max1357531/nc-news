@@ -109,8 +109,26 @@ describe("/api", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.length).toEqual(13);
-            expect(body[0]).toEqual({"article_id": 1, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "butter_bridge", "created_at": "2020-07-09T20:11:00.000Z", "title": "Living in the shadow of a great man", "topic": "mitch", "votes": 100});
-            expect(body[1]).toEqual({"article_id": 2, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "icellusedkars", "created_at": "2020-10-16T05:03:00.000Z", "title": "Sony Vaio; or, The Laptop", "topic": "mitch", "votes": 0});
+            expect(body[0]).toEqual({
+              article_id: 1,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              author: "butter_bridge",
+              created_at: "2020-07-09T20:11:00.000Z",
+              title: "Living in the shadow of a great man",
+              topic: "mitch",
+              votes: 100,
+            });
+            expect(body[1]).toEqual({
+              article_id: 2,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              author: "icellusedkars",
+              created_at: "2020-10-16T05:03:00.000Z",
+              title: "Sony Vaio; or, The Laptop",
+              topic: "mitch",
+              votes: 0,
+            });
           });
       });
       test("400: Responds with an error if prompted an invalid order query", () => {
@@ -119,6 +137,30 @@ describe("/api", () => {
           .expect(400)
           .then(({ body: { msg } }) => {
             expect(msg).toEqual("Invalid search term");
+          });
+      });
+      test("200: Responds with a queried list of articles when supplied a valid topic query", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual([{"article_id": 5, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "rogersop", "created_at": "2020-08-03T13:14:00.000Z", "title": "UNCOVERED: catspiracy to bring down democracy", "topic": "cats", "votes": 0}]);
+          });
+      });
+      test("200: Responds with an empty list when supplied with a topic that has no articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).toEqual([]);
+          });
+      });
+      test("404: Responds with a 404 error if supplied with a topic that does not exist", () => {
+        return request(app)
+          .get("/api/articles?topic=nonsense")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toEqual("Resource not found");
           });
       });
     });
@@ -258,29 +300,25 @@ describe("/api", () => {
           return request(app)
             .delete("/api/comments/1")
             .expect(204)
-            .then(({ body}) => {
+            .then(({ body }) => {
               expect(body).toEqual({});
             });
         });
         test("204: Comment is deleted from database", () => {
           let secondComment;
           return request(app)
-          .get("/api/comments")
-          .expect(200)
-          .then(({body}) => {
-            secondComment = body[1]
-            return request(app)
-            .delete("/api/comments/15")
-            .expect(204)
-          })          
+            .get("/api/comments")
+            .expect(200)
+            .then(({ body }) => {
+              secondComment = body[1];
+              return request(app).delete("/api/comments/15").expect(204);
+            })
             .then(() => {
-              return request(app)
-              .get("/api/comments")
-              .expect(200)
-          })
-          .then(({body})=>{
-            expect(body[0]).toEqual(secondComment)
-          })
+              return request(app).get("/api/comments").expect(200);
+            })
+            .then(({ body }) => {
+              expect(body[0]).toEqual(secondComment);
+            });
         });
         test("404: Responds with correct status code and message when comment not found", () => {
           return request(app)
@@ -289,7 +327,7 @@ describe("/api", () => {
             .then(({ body: { msg } }) => {
               expect(msg).toEqual("Not Found");
             });
-        })
+        });
         test("400: Responds with correct status code and message when comment id is wrong type", () => {
           return request(app)
             .delete("/api/comments/as")
@@ -297,20 +335,24 @@ describe("/api", () => {
             .then(({ body: { msg } }) => {
               expect(msg).toEqual("Invalid data type");
             });
-        })
-        
+        });
       });
     });
   });
-  describe("/api/users",()=>{
-    describe("GET",()=>{
+  describe("/api/users", () => {
+    describe("GET", () => {
       test("200: Responds with a list of all users with no query", () => {
         return request(app)
           .get("/api/users")
           .expect(200)
           .then(({ body }) => {
-            expect(body.length).toBe(4)
-            expect(body[0]).toEqual({"avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg", "name": "jonny", "username": "butter_bridge"});
+            expect(body.length).toBe(4);
+            expect(body[0]).toEqual({
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+              name: "jonny",
+              username: "butter_bridge",
+            });
           });
       });
       test("400: Responds with a 400 code and error message with a query", () => {
@@ -321,8 +363,8 @@ describe("/api", () => {
             expect(msg).toEqual("Invalid search topic");
           });
       });
-    })
-  })
+    });
+  });
 });
 describe("app.js", () => {
   test("404: Responds with a 404 error when GET called on undefined endpoint", () => {
