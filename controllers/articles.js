@@ -4,6 +4,8 @@ const {
   articles: { postCommentToDB,updateVotesOfArticle},
 } = require("../models");
 const { fetchUserByID } = require("./users");
+const countException = {"returns":",COUNT(comment_id) AS comment_count","select":" LEFT JOIN comments ON articles.article_id = comments.article_id ","where":" GROUP BY articles.article_id"}
+
 
 function fetchArticleByID(id) {
   return getQueryPerm("articles", "*", {
@@ -17,7 +19,9 @@ function fetchArticleByID(id) {
       "votes",
       "article_img_url",
     ],
-  })
+    
+  },exceptions = countException
+)
     .then((perm) => {
       return execQuery({ article_id: id }, perm);
     })
@@ -57,7 +61,9 @@ exports.getAllArticles = (request, response, next) => {
       "votes",
       "article_img_url",
     ],
-  })
+    
+  },exceptions = countException
+)
     .then((perm) => {
       return execQuery(request.query, perm);
     })

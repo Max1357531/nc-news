@@ -234,7 +234,7 @@ describe("completeQueryString", () => {
     const query = {};
     return getQueryPerm(tableName).then((perm) => {
       expect(perm.completeQueryString(query)).toEqual(
-        "SELECT slug,description,img_url FROM topics"
+        "SELECT topics.slug, topics.description, topics.img_url FROM topics"
       );
     });
   });
@@ -243,7 +243,7 @@ describe("completeQueryString", () => {
     const query = { sort_by: "slug" };
     return getQueryPerm(tableName, "*").then((perm) => {
       expect(perm.completeQueryString(query)).toEqual(
-        "SELECT slug,description,img_url FROM topics ORDER BY slug "
+        "SELECT topics.slug, topics.description, topics.img_url FROM topics ORDER BY slug "
       );
     });
   });
@@ -252,7 +252,7 @@ describe("completeQueryString", () => {
     const query = { sort_by: "slug", order: "desc" };
     return getQueryPerm(tableName, "*").then((perm) => {
       expect(perm.completeQueryString(query)).toEqual(
-        "SELECT slug,description,img_url FROM topics ORDER BY slug desc"
+         "SELECT topics.slug, topics.description, topics.img_url FROM topics ORDER BY slug desc"
       );
     });
   });
@@ -263,7 +263,7 @@ describe("completeQueryString", () => {
       returning: ["slug", "description"],
     }).then((perm) => {
       expect(perm.completeQueryString(query)).toEqual(
-        "SELECT slug,description FROM topics ORDER BY slug desc"
+        "SELECT topics.slug, topics.description FROM topics ORDER BY slug desc"
       );
     });
   });

@@ -4,10 +4,11 @@ const format = require("pg-format");
 const { checkExists } = require("./models");
 
 class QueryPerm {
-  constructor(tableName, allowedQueries, defaultQuery) {
+  constructor(tableName, allowedQueries, defaultQuery,exceptions) {
     this.tableName = tableName;
     this.defaultQuery = defaultQuery;
     this.allowedQueries = allowedQueries;
+    this.exceptions = exceptions;
   }
 
   greenListQuery(query) {
@@ -45,25 +46,32 @@ class QueryPerm {
     });
   }
 
+
+
   completeQueryString(query) {
     query = Object.assign(this.defaultQuery, query);
     let whereFlag = false;
-    let string = format(
-      "SELECT %I FROM %I",
-      this.defaultQuery.returning,
-      this.tableName
+    let string = "SELECT"
+    string += " %I.%I,".repeat(this.defaultQuery.returning.length)
+    string = format(string.substring(0,string.length-1),
+      ...this.defaultQuery.returning.map((returnCol)=>[this.tableName,returnCol]).flat()
     );
+    string += this.exceptions.returns;
+    string += format(" FROM %I",this.tableName)
+    string += this.exceptions.select;
     Object.keys(query).forEach((key) => {
       if (!exceptionQueries.includes(key)) {
         string +=
           (whereFlag ? " and " : " where ") +
-          format("%I = %L", key, query[key]);
+          format(" %I.%I = %L ",this.tableName, key, query[key]);
         whereFlag = true;
       }
     });
+    string += this.exceptions.where;
     string += query.sort_by
       ? format(" ORDER BY %I ", query.sort_by) + (query.order || "")
       : "";
+    
     return string;
   }
 }
@@ -81,7 +89,7 @@ function getColInfo(tableName) {
   });
 }
 
-function getQueryPerm(tableName, allowedQueries = {}, defaultQuery = {}) {
+function getQueryPerm(tableName, allowedQueries = {}, defaultQuery = {}, exceptions = {"returns":"","select":"","where":""}) {
   greenList = { order: ["asc", "desc"], sort_by: [] };
   const buildDefaultReturn = !defaultQuery.returning;
   if (allowedQueries === "*" || buildDefaultReturn) {
@@ -118,15 +126,15 @@ function getQueryPerm(tableName, allowedQueries = {}, defaultQuery = {}) {
       }
       if (allowedQueries === "*")
         return Promise.resolve(
-          new QueryPerm(tableName, greenList, defaultQuery)
+          new QueryPerm(tableName, greenList, defaultQuery,exceptions)
         );
       return Promise.resolve(
-        new QueryPerm(tableName, allowedQueries, defaultQuery)
+        new QueryPerm(tableName, allowedQueries, defaultQuery,exceptions)
       );
     });
   } else {
     return Promise.resolve(
-      new QueryPerm(tableName, allowedQueries, defaultQuery)
+      new QueryPerm(tableName, allowedQueries, defaultQuery,exceptions)
     );
   }
 }
