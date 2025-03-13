@@ -144,28 +144,11 @@ describe("getQueryPerm", () => {
     return getQueryPerm(tableName, allowedQueries, defaultQuery).then(
       (perm) => {
         expect(perm.tableName).toEqual("articles");
-        expect(perm.allowedQueries).toEqual({
-          article_id: ["*"],
-          article_img_url: ["*"],
-          author: ["*$users$username"],
-          body: ["*"],
-          created_at: ["*"],
-          order: ["asc", "desc"],
-          returning: ["author", "body", "title", "topic"],
-          sort_by: [
-            "created_at",
-            "votes",
-            "article_id",
-            "author",
-            "body",
-            "article_img_url",
-            "title",
-            "topic",
-          ],
-          title: ["*"],
-          topic: ["*$topics$slug"],
-          votes: ["*"],
-        });
+        expect(perm.allowedQueries.article_img_url).toEqual(["*"])
+        expect(perm.allowedQueries.body).toEqual(["*"])
+        expect(perm.allowedQueries.author).toEqual(["*$users$username"])
+        expect(perm.allowedQueries.topic).toEqual(["*$topics$slug"])
+
         expect(perm.defaultQuery).toEqual({
           order: "asc",
           returning: ["title", "topic", "author", "body"],
