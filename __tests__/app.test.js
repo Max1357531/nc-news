@@ -58,6 +58,7 @@ describe("/api", () => {
               article_img_url:
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
               author: "icellusedkars",
+              comment_count: "2",
               created_at: "2020-11-03T09:12:00.000Z",
               title: "Eight pug gifs that remind me of mitch",
               topic: "mitch",
@@ -67,6 +68,7 @@ describe("/api", () => {
               article_id: 6,
               article_img_url:
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              comment_count: "1",
               author: "icellusedkars",
               created_at: "2020-10-18T01:00:00.000Z",
               title: "A",
@@ -87,6 +89,7 @@ describe("/api", () => {
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
               author: "icellusedkars",
               created_at: "2020-01-07T14:08:00.000Z",
+              comment_count: "0",
               title: "Z",
               topic: "mitch",
               votes: 0,
@@ -97,6 +100,7 @@ describe("/api", () => {
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
               author: "icellusedkars",
               created_at: "2020-01-15T22:21:00.000Z",
+              comment_count: "0",
               title: "Am I a cat?",
               topic: "mitch",
               votes: 0,
@@ -109,26 +113,17 @@ describe("/api", () => {
           .expect(200)
           .then(({ body }) => {
             expect(body.length).toEqual(13);
-            expect(body[0]).toEqual({
-              article_id: 1,
-              article_img_url:
-                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-              author: "butter_bridge",
-              created_at: "2020-07-09T20:11:00.000Z",
-              title: "Living in the shadow of a great man",
-              topic: "mitch",
-              votes: 100,
-            });
-            expect(body[1]).toEqual({
-              article_id: 2,
-              article_img_url:
-                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-              author: "icellusedkars",
-              created_at: "2020-10-16T05:03:00.000Z",
-              title: "Sony Vaio; or, The Laptop",
-              topic: "mitch",
-              votes: 0,
-            });
+            //Checks each entries vote is less than the last
+            expect(body.map((t)=>t.votes).every((curr,index,arr) => !index || arr[index-1] >= curr)).toBe(true)
+          });
+      });
+      test("200: Responds with a article which includes accurate comment count", () => {
+        return request(app)
+          .get("/api/articles?article_id=1&sort_by=votes&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            //Checks each entries vote is less than the last
+            expect(body[0].comment_count).toEqual("11")
           });
       });
       test("400: Responds with an error if prompted an invalid order query", () => {
@@ -144,7 +139,20 @@ describe("/api", () => {
           .get("/api/articles?topic=cats")
           .expect(200)
           .then(({ body }) => {
-            expect(body).toEqual([{"article_id": 5, "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700", "author": "rogersop", "created_at": "2020-08-03T13:14:00.000Z", "title": "UNCOVERED: catspiracy to bring down democracy", "topic": "cats", "votes": 0}]);
+            expect(body).toEqual([
+              {
+                article_id: 5,
+                comment_count: "2",
+                article_img_url:
+                
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                author: "rogersop",
+                created_at: "2020-08-03T13:14:00.000Z",
+                title: "UNCOVERED: catspiracy to bring down democracy",
+                topic: "cats",
+                votes: 0,
+              },
+            ]);
           });
       });
       test("200: Responds with an empty list when supplied with a topic that has no articles", () => {
@@ -173,6 +181,7 @@ describe("/api", () => {
             .then(({ body }) => {
               expect(body).toEqual({
                 article_id: 1,
+                comment_count: "11",
                 article_img_url:
                   "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
                 author: "butter_bridge",
