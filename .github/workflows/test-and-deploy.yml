@@ -10,9 +10,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
