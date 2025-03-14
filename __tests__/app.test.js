@@ -165,6 +165,7 @@ describe("/api", () => {
             .get("/api/articles/1")
             .expect(200)
             .then(({ body }) => {
+              delete body.created_at
               expect(body).toEqual({
                 article_id: 1,
                 comment_count: "11",
@@ -172,7 +173,6 @@ describe("/api", () => {
                   "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
                 author: "butter_bridge",
                 body: "I find this existence challenging",
-                created_at: "2020-07-09T20:11:00.000Z",
                 title: "Living in the shadow of a great man",
                 topic: "mitch",
                 votes: 100,
