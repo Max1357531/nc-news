@@ -38,5 +38,7 @@ jobs:
       runs-on: ubuntu-latest
       needs: test
       steps:
+        - name: Echo secret
+          run: echo ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         - name: Deploy to Render
           run: curl ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
