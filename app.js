@@ -3,6 +3,7 @@ const app = express();
 const db = require("./db/connection");
 const format = require("pg-format");
 const endpoints = require("./endpoints.json");
+const cors = require('cors')
 
 const {
   errors: { customErrorResponse, error500, error404, errorSQL },
@@ -13,7 +14,7 @@ const {
 } = require("./controllers");
 
 
-
+app.use(cors())
 app.use(express.json());
 
 app.get("/api", (request, response) => {
